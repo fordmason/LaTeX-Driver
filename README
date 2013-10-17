@@ -1,0 +1,172 @@
+
+                             LaTeX::Driver
+
+                             Version 0.08
+
+                            19 January 2009
+
+        Copyright (C) 2009 Ford & Mason Ltd.  All Rights Reserved
+           Copyright (C) 2007 Andrew Ford.  All Rights Reserved
+
+          This is free software; you can redistribute it and/or
+             modify it under the same terms as Perl itself.
+
+              $Id: README 80 2009-01-19 13:42:25Z andrew $
+
+NOTE THIS IS BETA SOFTWARE - ITS INTERFACE IS LIABLE TO CHANGE.
+
+
+I welcome any and all feedback - Andrew <a.ford@ford-mason.co.uk>
+
+Please drop me an email if you use this module - I woul dbe interested
+to hear if anyone is actually using it.
+
+
+
+
+DESCRIPTION
+-----------
+
+The LaTeX::Driver module takes care of running and re-running latex on
+a LaTeX document so that forward references, tables of contents, and
+lists of figures and tables are resolved.  It will also run bibtex and
+makeindex if it detects that a bibliography or in index have been
+specified, and will re-run latex again one or more times until the
+formatting of the document has stabilized.
+
+The code was in part derived from the Template Toolkit Latex plugin
+and patches I had written for Template Toolkit before the Latex plugin
+was forked off from the main TT distribution.  It was also inspired by
+the latexn C Shell script and the latexmk script by John Collins, both
+of which are on CTAN (the Comprehensive TeX Archive Network).
+
+
+QUICK START
+-----------
+
+The latest version of the LaTeX::Driver module can be retrieved from:
+
+    http://www.cpan.org/modules/by-module/LaTeX-Driver/
+
+To install the module
+
+    tar zxf LaTeX-Driver-0.06.tar.gz
+    cd LaTeX-Driver-0.06
+    perl Makefile.PL
+    make
+    make test
+    make install    
+
+The Makefile.PL will prompt for the location of the LaTeX binaries. If
+it can locate the binaries then the paths will be given as defaults.
+If neither the latex nor the pdflatex binary can be found and no paths
+are given for these programs then Makefile.PL will ask whether you
+want to continue with the installation (as the module depends on there
+being a functional tex installation present on the system).
+
+For further details on installation, see the separate INSTALL file.
+
+
+WHAT'S NEW?
+-----------
+
+Version 0.08 adds checks for documents that use the 'longtable'
+package and other packages that can require latex reruns without
+necessarily changing labels.  It also exposes the page count (and the
+byte count) in the statistics hash.
+
+Version 0.07 is the latest in a series of incremental improvements
+that aims to stabilize the interface.
+
+Version 0.01 is a new module.  It was factored out of Template-Latex,
+which itself was created by moving the code out of the core Template
+Toolkit distribution (version 2.15).
+
+See the Changes file for further details of the changes in these
+releases.
+
+
+GENERAL FEATURES
+----------------
+
+Some of the key features of the Latex::Driver module are listed below.
+
+The module is invoked like this:
+
+    $drv = LaTeX::Driver->new( source  => $source,
+			       output  => $output,
+			       format  => 'pdf', # or 'dvi' or 'ps'
+			       maxruns => 8, 
+			       extraruns  => 1,
+			       indexstyle => 'myindexstyle.ist',
+			       texinputs  => \@latex_dirs );
+    $drv->run();
+
+The constructor creates a driver object that is run with $drv->run.
+
+The source document is specified by the "source" argument, which can
+be a filename or a reference to a scalar containing the document
+source.  The other arguments are optional in most circumstances, with
+sensible defaults.  An exception is that if the source is specified as
+a scalar reference then the output must be specified (as the driver
+has no filename to work with); the output may be either a filename or
+another scalar reference into which the output document will be copied.
+
+Three programs are included "latex2pdf", "latex2ps" and "latex2dvi",
+which will take a LaTeX document and transform it into the respective
+output format.  With the -tt2mode option the input is taken to be a
+Template Toolkit template and the document content is processed by the
+Template Toolkit (if it is installed) before being processed as a
+LaTeX document.  The -define=name=value option allows variables to be
+defined that are passed to the Template Toolkit.  The -define option
+can be specified multiple times.  NOTE: THESE SCRIPTS ARE STILL ALPHA QUALITY.
+
+
+See the documentation for further detail.
+
+
+DOCUMENTATION
+-------------
+
+The 'Changes' file in the distribution directory documents all visible
+changes between versions of the Template Toolkit.  See the section 
+'VERSION COMPATABILITY' below for further details.
+
+The 'TODO' file, also in the distribution directory, lists known bugs,
+planned enhancements and possible new features for future versions.
+
+The rest of the documentation is distributed in Pod and HTML formats.
+The Pod pages are installed when you 'make install' and can be viewed
+using 'perldoc', e.g. 'perldoc LaTeX::Driver'.
+
+
+SUPPORT
+-------
+
+Currently the only support is direct from the author.
+
+
+
+AUTHOR
+------
+
+This module was written by Andrew Ford <a.ford@ford-mason.co.uk>.
+
+It borrows from the Template Toolkit distribution by Andy Wardley
+<abw@wardley.org> with the assistance and contributions from many
+other people. In 2006 the Latex plugin was separated out into its own
+distribution and Andrew Ford <a.ford@ford-mason.co.uk> took over as
+maintainer.  He created this module as part of the refactoring of
+Template-Latex.
+
+
+
+COPYRIGHT
+---------
+
+Copyright (C) 2007 Andrew Ford.   All Rights Reserved.
+Portions Copyright (C) 1996-2007 Andy Wardley.  All Rights Reserved.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
+
