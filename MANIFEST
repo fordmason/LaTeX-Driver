@@ -5,10 +5,7 @@ INSTALL
 Changes
 TODO
 Makefile.PL                    
-MYMETA.yml
-MYMETA.json
 lib/LaTeX/Driver.pm
-lib/LaTeX/Driver/Paths.pm
 lib/LaTeX/Driver/FilterProgram.pm
 t/README
 t/00-basic.t

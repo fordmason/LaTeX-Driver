@@ -83,7 +83,7 @@ $drv = LaTeX::Driver->new( source => $docpath,
 			   format => 'ps(pdf)',
 			   @DEBUGOPTS );
 
-ok($drv->run, "formatting $docname to PDF, via PostScript");
+ok($drv->run, "formatting $docname to PostScript, via PDF");
 ok(-f ($drv->basepath . '.pdf'),  "PDF file exists");
 ok(-f ($drv->basepath . '.ps'),   "PostScript file exists");
 ok(! -f ($drv->basepath . '.dvi'),  "DVI file does not exists");

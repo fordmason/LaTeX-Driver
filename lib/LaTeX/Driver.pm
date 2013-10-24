@@ -6,10 +6,10 @@
 #   Driver module that encapsulates the details of formatting a LaTeX document
 #
 # AUTHOR
-#   Andrew Ford <a.ford@ford-mason.co.uk>  (current maintainer)
+#   Andrew Ford <andrew@ford-mason.co.uk>  (current maintainer)
 #
 # COPYRIGHT
-#   Copyright (C) 2009-2012 Ford & Mason Ltd.  All Rights Reserved.
+#   Copyright (C) 2009-2013 Ford & Mason Ltd.  All Rights Reserved.
 #   Copyright (C) 2006-2007 Andrew Ford.  All Rights Reserved.
 #   Portions Copyright (C) 1996-2006 Andy Wardley.  All Rights Reserved.
 #
@@ -41,9 +41,14 @@ use File::Spec;                         # from PathTools
 use IO::File;                           # from IO
 use Readonly;
 
+BEGIN {
+    require IPC::ShellCmd
+        unless $OSNAME eq 'MSWin32';
+}
+
 Readonly our $DEFAULT_MAXRUNS => 10;
 
-our $VERSION = 0.12;
+our $VERSION = 0.20_01;
 
 __PACKAGE__->mk_accessors( qw( basename basedir basepath options
                                source output tmpdir format
@@ -58,13 +63,9 @@ our $DEBUGPREFIX;
 
 # LaTeX executable paths set at installation time by the Makefile.PL
 
-eval { require LaTeX::Driver::Paths };
+our @PROGRAM_NAMES = qw(latex pdflatex xelatex bibtex makeindex dvips dvipdfm ps2pdf pdf2ps);
 
-our @PROGRAM_NAMES = qw(latex pdflatex bibtex makeindex dvips dvipdfm ps2pdf pdf2ps);
-our %program_path;
-
-$program_path{$_} = $LaTeX::Driver::Paths::program_path{$_} || "/usr/bin/$_"
-    for @PROGRAM_NAMES;
+our %program_path = map { ( $_ => $_ ) } @PROGRAM_NAMES;
 
 our @LOGFILE_EXTS = qw( log blg ilg );
 our @TMPFILE_EXTS = qw( aux log lot toc bbl ind idx cit cbk ibk );
@@ -81,10 +82,12 @@ our %FORMATTERS  = (
     dvi        => [ 'latex' ],
     ps         => [ 'latex', 'dvips' ],
     postscript => [ 'latex', 'dvips' ],
-    pdf        => [ 'pdflatex' ],
-    'pdf(dvi)' => [ 'latex', 'dvipdfm' ],
-    'pdf(ps)'  => [ 'latex', 'dvips', 'ps2pdf' ],
-    'ps(pdf)'  => [ 'pdflatex', 'pdf2ps' ],
+    pdf        => [ 'xelatex' ],
+    'pdf(pdflatex)' => [ 'pdflatex' ],
+    'pdf(xelatex)'  => [ 'xelatex' ],
+    'pdf(dvi)'      => [ 'latex', 'dvipdfm' ],
+    'pdf(ps)'       => [ 'latex', 'dvips', 'ps2pdf' ],
+    'ps(pdf)'       => [ 'pdflatex', 'pdf2ps' ],
 );
 
 
@@ -537,7 +540,7 @@ sub run_makeindex {
     if (my $index_options = $self->options->{indexoptions}) {
         push @args, $index_options;
     }
-    my $exitcode = $self->run_command(makeindex => join(" ", (@args, $basename)));
+    my $exitcode = $self->run_command(makeindex => [@args, $basename]);
 
     # TODO: extract meaningful error message from .ilg file
 
@@ -587,7 +590,7 @@ sub run_dvips {
 
     my $basename = $self->basename;
 
-    my $exitstatus = $self->run_command(dvips => "$basename -o");
+    my $exitstatus = $self->run_command(dvips => [$basename, '-o']);
 
     $self->throw("dvips $basename failed ($exitstatus)")
         if $exitstatus;
@@ -606,7 +609,7 @@ sub run_ps2pdf {
 
     my $basename = $self->basename;
 
-    my $exitstatus = $self->run_command(ps2pdf => sprintf("%s.ps %s.pdf", $basename, $basename));
+    my $exitstatus = $self->run_command(ps2pdf => ["$basename.ps", "$basename.pdf"]);
 
     $self->throw("ps2pdf $basename failed ($exitstatus)")
         if $exitstatus;
@@ -625,7 +628,7 @@ sub run_pdf2ps {
 
     my $basename = $self->basename;
 
-    my $exitstatus = $self->run_command(pdf2ps => sprintf("%s.pdf %s.ps", $basename, $basename));
+    my $exitstatus = $self->run_command(pdf2ps => ["$basename.pdf", "$basename.ps"]);
 
     $self->throw("pdf2ps $basename failed ($exitstatus)")
         if $exitstatus;
@@ -642,6 +645,9 @@ sub run_pdf2ps {
 
 sub run_command {
     my ($self, $progname, $args, $envvars) = @_;
+
+    $args = [ $args ]
+        unless ref $args;
 
     # get the full path to the executable for this output format
     my $program = $self->program_path($progname)
@@ -664,21 +670,27 @@ sub run_command {
     $envvars ||= "TEXINPUTS";
     $envvars = [ $envvars ] unless ref $envvars;
     local(@ENV{@{$envvars}}) = map { $self->texinputs_path } @{$envvars};
-
-    # Format the command appropriately for our O/S
-    if ($OSNAME eq 'MSWin32') {
-        $cmd = "cmd /c \"cd $dir && $program $args\"";
-    }
-    else {
-        $args = "'$args'" if $args =~ / \\ /mx;
-        $cmd  = "cd $dir; $program $args 1>$null 2>$null 0<$null";
-    }
-
     $self->stats->{runs}{$progname}++;
     debug("running '$program $args'") if $DEBUG;
 
-    my $exitstatus = system($cmd);
-    return $exitstatus;
+    # Format the command appropriately for our O/S
+
+    my $exit_status;
+    if ($OSNAME eq 'MSWin32') {
+        $args = join(' ', @$args);
+        $cmd  = "cmd /c \"cd $dir && $program $args\"";
+        $exit_status = system($cmd);
+    }
+    else {
+        $args = "'$args'" if $args =~ / \\ /mx;
+        my $isc = IPC::ShellCmd->new([$program, @$args])
+            ->working_dir($dir)
+            ->run;
+        $exit_status = $isc->status;
+    }
+
+
+    return $exit_status;
 }
 
 
@@ -843,6 +855,12 @@ directory part of C<basename>, or in the current directory.  As a
 result of the processing up to a dozen or more intermediate files are
 created.  These can be removed with the C<cleanup> method.
 
+
+=head1 SOURCE
+
+Source code can be found at L<https://github.com/fordmason/LaTeX-Driver>
+
+Feel free to fork and add your stuff!
 
 =head1 SUBROUTINES/METHODS
 
@@ -1131,7 +1149,7 @@ containing the source document but it cannot.
 The module was trying to copy the specified source file to the
 temporary directory but couldn't.  Perhaps you specified the temporary
 directory name explicitly but the directory does not exist or is not
-writable.
+writeable.
 
 =back
 

@@ -3,3 +3,5 @@
 ^blib/
 ^pm_to_blib
 ^blibdirs
+MYMETA.yml
+MYMETA.json
