@@ -1,5 +1,3 @@
-#========================================================================
-#
 # LaTeX::Driver
 #
 # DESCRIPTION
@@ -16,13 +14,6 @@
 #   This module is free software; you can redistribute it and/or
 #   modify it under the same terms as Perl itself.
 #
-# HISTORY
-#   * Added test for reruns required by longtable environments changing (AF, 2009-01-19)
-#
-#   * Extracted from the Template::Latex module (AF, 2007-09-10)
-#
-#   $Id: Driver.pm 86 2012-08-31 19:09:10Z andrew $
-#========================================================================
 
 package LaTeX::Driver;
 
@@ -48,10 +39,10 @@ BEGIN {
 
 Readonly our $DEFAULT_MAXRUNS => 10;
 
-our $VERSION = 0.20_01;
+our $VERSION = 0.20_02;
 
 __PACKAGE__->mk_accessors( qw( basename basedir basepath options
-                               source output tmpdir format
+                               source output tmpdir format timeout stderr
                                formatter preprocessors postprocessors _program_path
                                maxruns extraruns stats texinputs_path
                                undefined_citations undefined_references
@@ -63,7 +54,10 @@ our $DEBUGPREFIX;
 
 # LaTeX executable paths set at installation time by the Makefile.PL
 
-our @PROGRAM_NAMES = qw(latex pdflatex xelatex bibtex makeindex dvips dvipdfm ps2pdf pdf2ps);
+our @PROCESSORS      = qw(xelatex lulaatex pdflatex latex);
+our @AUXILLARY_PROGS = qw(bibtex makeindex);
+our @POSTPROCESSORS  = qw(dvips dvipdfm ps2pdf pdf2ps);
+our @PROGRAM_NAMES   = (@PROCESSORS, @AUXILLARY_PROGS, @POSTPROCESSORS);
 
 our %program_path = map { ( $_ => $_ ) } @PROGRAM_NAMES;
 
@@ -223,6 +217,7 @@ sub new {
     $texinputs_path = [ split(/:/, $texinputs_path) ] unless ref $texinputs_path;
 
 
+
     # construct and return the object
 
     return $class->SUPER::new( { basename       => $basename,
@@ -234,6 +229,8 @@ sub new {
                                  options        => $options,
                                  maxruns        => $options->{maxruns}   || $DEFAULT_MAXRUNS,
                                  extraruns      => $options->{extraruns} ||  0,
+                                 timeout        => $options->{timeout},
+                                 capture_stderr => $options->{capture_stderr} || 0,
                                  formatter      => $formatter,
                                  _program_path  => $path,
                                  texinputs_path => join(':', ('.', @{$texinputs_path}, '')),
@@ -686,9 +683,12 @@ sub run_command {
         my $isc = IPC::ShellCmd->new([$program, @$args])
             ->working_dir($dir)
             ->run;
+        $isc->add_timers($self->timeout, 'TERM')
+            if $self->timeout;
+        $self->{stderr} .= $isc->stderr
+            if $self->{capture_stderr};
         $exit_status = $isc->status;
     }
-
 
     return $exit_status;
 }
@@ -926,6 +926,11 @@ The maximum number of runs of the formatter program (defaults to 10).
 
 The number of additional runs of the formatter program after the document has stabilized.
 
+=item C<timeout>
+
+Specifies a timeout in seconds within which any commands spawned
+should finish.  
+
 =item C<cleanup>
 
 Specifies whether temporary files and directories should be
@@ -985,6 +990,10 @@ The constructor method returns a driver object.
 
 Format the document.
 
+=item C<stderr>
+
+Holds the error output from subcommands, if the C<-capture_stderr>
+option was passed to C<new()>.
 
 =item C<stats()>
 

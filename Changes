@@ -1,5 +1,9 @@
 Revision history for the LaTeX::Driver module                -*- indented-text -*-
 
+0.20_02  2013-10-29
+    - added -timeout option (requires IPC::ShellCmd 0.003)
+    - added -capture_stderr option and stderr() method to retrieve captured stderr
+
 0.20_01  2013-10-18
     - Now maintained on github
     - reformatted Changes file
@@ -7,7 +11,6 @@ Revision history for the LaTeX::Driver module                -*- indented-text -
     - use IPC::ShellCmd to run commands
     - remove LaTeX::Driver::Paths - paths determined at runtime
    
-
 0.12  2012-08-31
     - fixed typo in settings of ps2pdf/pdf2ps (RT79233)
     - add missing dependency on Readonly (RT79330)
