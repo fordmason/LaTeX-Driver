@@ -20,7 +20,7 @@ package LaTeX::Driver;
 use strict;
 use warnings;
 
-use base 'Class::Accessor';
+use parent 'Class::Accessor';
 use Cwd;                                # from PathTools
 use English qw( -no_match_vars );       # standard Perl class
 use Exception::Class ( 'LaTeX::Driver::Exception' );
@@ -39,7 +39,7 @@ BEGIN {
 
 Readonly our $DEFAULT_MAXRUNS => 10;
 
-our $VERSION = 0.20_02;
+our $VERSION = 0.20_03;
 
 __PACKAGE__->mk_accessors( qw( basename basedir basepath options
                                source output tmpdir format timeout stderr

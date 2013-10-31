@@ -18,9 +18,18 @@ my %opts = (
 	'Exception::Class' => 0,
 	'File::Slurp'      => 0,
 	'File::Spec'       => 0,
+	'Getopt::Long'     => 0,
 	'IO::File'         => 0,
+	'parent'           => 0,
 	($OSNAME eq 'MSWin32') ? () : ( 'IPC::ShellCmd'  => 0 ),
         'Readonly'         => 0,
+    },
+    META_ADD      => {
+	repository  => {
+	    url  => 'git://github.com/fordmason/LaTeX-Driver.git',
+	    web  => 'https://github.com/fordmason/LaTeX-Driver',
+	    type => 'git',
+	},                                     
     },
     'dist'         => {
         'COMPRESS' => 'gzip',
