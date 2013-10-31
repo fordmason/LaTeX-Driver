@@ -1,46 +1,44 @@
 #!/usr/bin/perl -w                                         # -*- perl -*-
 
-use strict;
+use inc::Module::Install 0.91;
+use Module::Install::ReadmeFromPod;
+use Module::Install::AuthorRequires;
+use Module::Install::AuthorTests;
+use Module::Install::AssertOS;
 
-use ExtUtils::MakeMaker;
-use English qw( -no_match_vars );
+assertos qw/ Unix /;
 
-our $WIN32  = ($^O eq 'MSWin32');
+license 'perl';
 
-my %opts = (
-    'NAME'         => 'LaTeX-Driver',
-    'VERSION_FROM' => 'lib/LaTeX/Driver.pm',
-    'EXE_FILES'    => [ 'scripts/latex2dvi', 'scripts/latex2pdf', 'scripts/latex2ps' ],
-    'PMLIBDIRS'    => [ 'lib' ], 
-    'PREREQ_PM'    => { 
-	'Class::Accessor'  => 0,
-	'Cwd'              => 0,
-	'Exception::Class' => 0,
-	'File::Slurp'      => 0,
-	'File::Spec'       => 0,
-	'Getopt::Long'     => 0,
-	'IO::File'         => 0,
-	'parent'           => 0,
-	($OSNAME eq 'MSWin32') ? () : ( 'IPC::ShellCmd'  => 0 ),
-        'Readonly'         => 0,
-    },
-    META_ADD      => {
-	repository  => {
-	    url  => 'git://github.com/fordmason/LaTeX-Driver.git',
-	    web  => 'https://github.com/fordmason/LaTeX-Driver',
-	    type => 'git',
-	},                                     
-    },
-    'dist'         => {
-        'COMPRESS' => 'gzip',
-        'SUFFIX'   => 'gz',
-    },
-);
+all_from    'lib/LaTeX/Driver.pm';
+readme_from 'lib/LaTeX/Driver.pm';
 
-if (((my $version = $ExtUtils::MakeMaker::VERSION) =~ s/_//) >= 5.43) {
-    $opts{ AUTHOR   } = 'Andrew Ford <andrew@ford-mason.co.uk>';
-    $opts{ ABSTRACT } = 'LaTeX Driver',
-}
+requires_external_bin 'latex';
 
-WriteMakefile((MM->can('signature_target') ? (SIGN => 1) : ()), %opts);
+requires 'Class::Accessor';
+requires 'Cwd';
+requires 'Exception::Class';
+requires 'File::Slurp';
+requires 'File::Spec';
+requires 'Getopt::Long';
+requires 'IO::File';
+requires 'parent';
+requires 'IPC::ShellCmd' => 0.002;
+requires 'Readonly';
 
+test_requires 'Test::More' => '0.88';
+
+author_requires 'Test::NoTabs';
+author_requires 'Test::Pod' => '1.14';
+author_requires 'Test::Pod::Coverage' => '1.04';
+author_requires 'Test::Spelling' => '0.11';
+
+install_script 'latex2dvi';
+install_script 'latex2pdf';
+install_script 'latex2ps';
+
+author_tests 'xt';
+
+resources repository => 'https://github.com/fordmason/LaTeX-Driver.git';
+
+WriteAll;

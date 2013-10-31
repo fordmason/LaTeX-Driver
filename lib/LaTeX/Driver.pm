@@ -20,6 +20,8 @@ package LaTeX::Driver;
 use strict;
 use warnings;
 
+use 5.008005;
+
 use parent 'Class::Accessor';
 use Cwd;                                # from PathTools
 use English qw( -no_match_vars );       # standard Perl class
@@ -39,7 +41,7 @@ BEGIN {
 
 Readonly our $DEFAULT_MAXRUNS => 10;
 
-our $VERSION = 0.20_03;
+our $VERSION = "0.20_03";
 
 __PACKAGE__->mk_accessors( qw( basename basedir basepath options
                                source output tmpdir format timeout stderr
@@ -827,7 +829,7 @@ LaTeX::Driver - Latex driver
 
 =head1 VERSION
 
-This document describes version 0.08 of C<LaTeX::Driver>.
+This document describes version 0.20_03 of C<LaTeX::Driver>.
 
 =head1 SYNOPSIS
 

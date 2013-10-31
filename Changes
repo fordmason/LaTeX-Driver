@@ -1,5 +1,8 @@
 Revision history for the LaTeX::Driver module                -*- indented-text -*-
 
+0.20_03  2013-10-31
+    - switched Makefile.PL to Module::Install
+
 0.20_02  2013-10-29
     - added -timeout option (requires IPC::ShellCmd 0.003)
     - added -capture_stderr option and stderr() method to retrieve captured stderr
