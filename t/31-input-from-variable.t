@@ -26,7 +26,8 @@ my $systmpdir = $ENV{TMPDIR} || '/tmp';
 
 diag("Checking the formatting of a simple LaTeX document read from a variable");
 isa_ok($drv, 'LaTeX::Driver');
-like($drv->basedir, qr{^$systmpdir/$LaTeX::Driver::DEFAULT_TMPDIR\w+$}, "checking basedir");
+my $tmpbasedir = File::Spec->catdir($systmpdir, $LaTeX::Driver::DEFAULT_TMPDIR);
+like($drv->basedir, qr{^$tmpbasedir\w+$}, "checking basedir");
 is($drv->basename, $LaTeX::Driver::DEFAULT_DOCNAME, "checking basename");
 is($drv->basepath, File::Spec->catpath('', $drv->basedir, $LaTeX::Driver::DEFAULT_DOCNAME), "checking basepath");
 is($drv->formatter, 'latex', "formatter");
