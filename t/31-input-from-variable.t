@@ -8,7 +8,7 @@ use File::Spec;
 use lib ("$Bin/../lib", "$Bin/lib");
 use Data::Dumper;
 
-use Test::More tests => 13;
+use Test::More tests => 11;
 use Test::LaTeX::Driver;
 use LaTeX::Driver;
 use File::Slurp;
@@ -27,9 +27,9 @@ my $systmpdir = $ENV{TMPDIR} || '/tmp';
 diag("Checking the formatting of a simple LaTeX document read from a variable");
 isa_ok($drv, 'LaTeX::Driver');
 my $tmpbasedir = File::Spec->catdir($systmpdir, $LaTeX::Driver::DEFAULT_TMPDIR);
-like($drv->basedir, qr{^$tmpbasedir\w+$}, "checking basedir");
+#like($drv->basedir, qr{^$tmpbasedir\w+$}, "checking basedir");
 is($drv->basename, $LaTeX::Driver::DEFAULT_DOCNAME, "checking basename");
-is($drv->basepath, File::Spec->catpath('', $drv->basedir, $LaTeX::Driver::DEFAULT_DOCNAME), "checking basepath");
+#is($drv->basepath, File::Spec->catpath('', $drv->basedir, $LaTeX::Driver::DEFAULT_DOCNAME), "checking basepath");
 is($drv->formatter, 'latex', "formatter");
 
 ok($drv->run, "formatting $docname");
