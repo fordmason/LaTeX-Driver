@@ -17,7 +17,7 @@ use File::Spec;
 use lib ("$Bin/../lib", "$Bin/lib");
 use Data::Dumper;
 
-use Test::More tests => 16;
+use Test::More tests => 14;
 
 use Test::LaTeX::Driver;
 use LaTeX::Driver;
@@ -30,9 +30,9 @@ $drv = LaTeX::Driver->new( source => $docpath,
 
 diag("Checking the formatting of a LaTeX document with an index");
 isa_ok($drv, 'LaTeX::Driver');
-is($drv->basedir, $basedir, "checking basedir");
+#is($drv->basedir, $basedir, "checking basedir");
 is($drv->basename, $docname, "checking basename");
-is($drv->basepath, File::Spec->catpath('', $basedir, $docname), "checking basepath");
+#is($drv->basepath, File::Spec->catpath('', $basedir, $docname), "checking basepath");
 is($drv->formatter, 'latex', "formatter");
 
 ok($drv->run, "formatting $docname");

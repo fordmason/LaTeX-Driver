@@ -1,5 +1,9 @@
 Revision history for the LaTeX::Driver module                -*- indented-text -*-
 
+0.20  2014-04-09
+    - Removed IPC::ShellCmd dependency since newer versions not on CPAN
+    - Fixed Win32 support 
+
 0.20_03  2013-10-31
     - switched Makefile.PL to Module::Install
 
