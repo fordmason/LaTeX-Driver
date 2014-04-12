@@ -8,9 +8,12 @@ use File::Spec;
 use lib ("$Bin/../lib", "$Bin/lib");
 use Data::Dumper;
 
-use Test::More tests => 9;
+use Test::More; 
 use Test::LaTeX::Driver;
 use LaTeX::Driver;
+
+plan skip_all => 'dvips not installed' if system('dvips -v');
+plan tests => 9;
 
 tidy_directory($basedir, $docname, $debug);
 

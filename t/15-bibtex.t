@@ -8,10 +8,14 @@ use File::Spec;
 use lib ("$Bin/../lib", "$Bin/lib");
 use Data::Dumper;
 
-use Test::More tests => 8;
+use Test::More;
 
 use Test::LaTeX::Driver;
 use LaTeX::Driver;
+
+plan skip_all => 'BIBTEX_TESTS not set.  Requires lastpage.sty.' 
+      unless $ENV{BIBTEX_TESTS};
+plan tests => 8;
 
 tidy_directory($basedir, $docname, $debug);
 
