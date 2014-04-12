@@ -8,10 +8,13 @@ use File::Spec;
 use lib ("$Bin/../lib", "$Bin/lib");
 use Data::Dumper;
 
-use Test::More tests => 11;
+use Test::More;
 use Test::LaTeX::Driver;
 use LaTeX::Driver;
 use File::Slurp;
+
+plan skip_all => 'dvips not installed' if system('dvips -v');
+plan tests => 11;
 
 tidy_directory($basedir, $docname, $debug);
 

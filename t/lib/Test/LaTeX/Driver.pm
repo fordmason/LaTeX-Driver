@@ -36,7 +36,6 @@ use warnings;
 use Config;
 use FindBin qw($Bin);
 use Getopt::Long;
-use IPC::ShellCmd;
 
 use Test::More;
 require Exporter;

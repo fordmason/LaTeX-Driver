@@ -38,7 +38,7 @@ use File::pushd;                        # temporary cwd changes
 
 Readonly our $DEFAULT_MAXRUNS => 10;
 
-our $VERSION = "0.20";
+our $VERSION = "0.200.4";
 
 __PACKAGE__->mk_accessors( qw( basename basedir basepath options
                                source output tmpdir format timeout stderr
@@ -674,7 +674,7 @@ sub run_command {
     my $exit_status;
     if ($OSNAME eq 'MSWin32') {
         $args = join(' ', @$args);
-        $cmd  = "cmd /c \"$program $args\"";
+        $cmd  = "\"$program\" $args";
         $exit_status = system($cmd);
     }
     else {
@@ -820,7 +820,7 @@ LaTeX::Driver - Latex driver
 
 =head1 VERSION
 
-This document describes version 0.20 of C<LaTeX::Driver>.
+This document describes version 0.200.4 of C<LaTeX::Driver>.
 
 =head1 SYNOPSIS
 
