@@ -36,6 +36,6 @@ install_script 'latex2ps';
 
 author_tests 'xt';
 
-resources repository => 'https://github.com/fordmason/LaTeX-Driver.git';
+resources repository => 'https://github.com/Template-Toolkit-Latex/LaTeX-Driver.git';
 
 WriteAll;
