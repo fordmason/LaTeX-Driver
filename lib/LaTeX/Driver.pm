@@ -215,6 +215,9 @@ sub new {
     my $texinputs_path = $options->{TEXINPUTS} || $options->{texinputs} || [];
     $texinputs_path = [ split(/:/, $texinputs_path) ] unless ref $texinputs_path;
 
+    # see http://tex.stackexchange.com/questions/149714/149865#149865
+
+    my $texinputs_sep = $OSNAME eq "MSWin32" ? ';' : ':';
 
 
     # construct and return the object
@@ -232,7 +235,7 @@ sub new {
                                  capture_stderr => $options->{capture_stderr} || 0,
                                  formatter      => $formatter,
                                  _program_path  => $path,
-                                 texinputs_path => join(':', ('.', @{$texinputs_path}, '')),
+                                 texinputs_path => join($texinputs_sep, ('.', @{$texinputs_path}, '')),
                                  preprocessors  => [],
                                  postprocessors => \@postprocessors,
                                  stats          => { runs => {} } } );
@@ -665,6 +668,7 @@ sub run_command {
 
     $envvars ||= "TEXINPUTS";
     $envvars = [ $envvars ] unless ref $envvars;
+    local(@ENV{@{$envvars}}) = map { $self->texinputs_path } @{$envvars};
     $self->stats->{runs}{$progname}++;
     debug("running '$program $args'") if $DEBUG;
     my $cwd = pushd($dir);
@@ -678,7 +682,6 @@ sub run_command {
         $exit_status = system($cmd);
     }
     else {
-        local(@ENV{@{$envvars}}) = map { $self->texinputs_path } @{$envvars};
         $args = "'$args'" if $args =~ / \\ /mx;
         $exit_status = system($program, @$args);
     }
