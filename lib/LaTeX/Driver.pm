@@ -674,6 +674,7 @@ sub run_command {
     my $cwd = pushd($dir);
 
     # Format the command appropriately for our O/S
+    push @$args, '>' . $null;
 
     my $exit_status;
     if ($OSNAME eq 'MSWin32') {
