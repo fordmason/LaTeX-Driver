@@ -35,6 +35,7 @@ use File::Spec;                         # from PathTools
 use IO::File;                           # from IO
 use Readonly;
 use File::pushd;                        # temporary cwd changes
+use Capture::Tiny qw(capture);
 
 Readonly our $DEFAULT_MAXRUNS => 10;
 
@@ -674,18 +675,24 @@ sub run_command {
     my $cwd = pushd($dir);
 
     # Format the command appropriately for our O/S
-    push @$args, '>' . $null;
 
     my $exit_status;
+    my ($stdout, $stderr);
     if ($OSNAME eq 'MSWin32') {
         $args = join(' ', @$args);
         $cmd  = "\"$program\" $args";
-        $exit_status = system($cmd);
+        ($stdout, $stderr) = capture {
+            $exit_status = system($cmd);
+        };
     }
     else {
         $args = "'$args'" if $args =~ / \\ /mx;
-        $exit_status = system($program, @$args);
+        ($stdout, $stderr) = capture {
+            $exit_status = system($program, @$args);
+        };
     }
+    $self->{stderr} .= $stderr
+        if $self->{capture_stderr};
 
     return $exit_status;
 }
