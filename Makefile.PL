@@ -22,6 +22,7 @@ requires 'IO::File';
 requires 'parent';
 requires 'Readonly';
 requires 'File::pushd';
+requires 'Capture::Tiny';
 
 test_requires 'Test::More' => '0.88';
 
