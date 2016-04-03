@@ -4,12 +4,13 @@
 #   Driver module that encapsulates the details of formatting a LaTeX document
 #
 # AUTHOR
-#   Andrew Ford <andrew@ford-mason.co.uk>  (current maintainer)
+#   Chris Travers <chris.travers@gmail.com>  (current maintainer)
 #
 # COPYRIGHT
-#   Copyright (C) 2009-2013 Ford & Mason Ltd.  All Rights Reserved.
-#   Copyright (C) 2006-2007 Andrew Ford.  All Rights Reserved.
-#   Portions Copyright (C) 1996-2006 Andy Wardley.  All Rights Reserved.
+#   Copyright (C) 2014  Chris Travers.  
+#   Copyright (C) 2009-2013 Ford & Mason Ltd.  
+#   Copyright (C) 2006-2007 Andrew Ford.  
+#   Portions Copyright (C) 1996-2006 Andy Wardley.  
 #
 #   This module is free software; you can redistribute it and/or
 #   modify it under the same terms as Perl itself.
@@ -33,15 +34,11 @@ use File::Slurp;
 use File::Spec;                         # from PathTools
 use IO::File;                           # from IO
 use Readonly;
-
-BEGIN {
-    require IPC::ShellCmd
-        unless $OSNAME eq 'MSWin32';
-}
+use File::pushd;                        # temporary cwd changes
 
 Readonly our $DEFAULT_MAXRUNS => 10;
 
-our $VERSION = "0.20_03";
+our $VERSION = "0.200.4";
 
 __PACKAGE__->mk_accessors( qw( basename basedir basepath options
                                source output tmpdir format timeout stderr
@@ -218,6 +215,9 @@ sub new {
     my $texinputs_path = $options->{TEXINPUTS} || $options->{texinputs} || [];
     $texinputs_path = [ split(/:/, $texinputs_path) ] unless ref $texinputs_path;
 
+    # see http://tex.stackexchange.com/questions/149714/149865#149865
+
+    my $texinputs_sep = $OSNAME eq "MSWin32" ? ';' : ':';
 
 
     # construct and return the object
@@ -235,7 +235,7 @@ sub new {
                                  capture_stderr => $options->{capture_stderr} || 0,
                                  formatter      => $formatter,
                                  _program_path  => $path,
-                                 texinputs_path => join(':', ('.', @{$texinputs_path}, '')),
+                                 texinputs_path => join($texinputs_sep, ('.', @{$texinputs_path}, '')),
                                  preprocessors  => [],
                                  postprocessors => \@postprocessors,
                                  stats          => { runs => {} } } );
@@ -340,7 +340,7 @@ sub run_latex {
 
     my $basename = $self->basename;
     my $exitcode = $self->run_command($self->formatter =>
-                                      "\\nonstopmode\\def\\TTLATEX{1}\\input{$basename}");
+                                      "\\nonstopmode\\def\\TTLATEX{1}\\input{./$basename}");
 
     # If an error occurred attempt to extract the interesting lines
     # from the log file.  Even without errors the log file may contain
@@ -671,25 +671,20 @@ sub run_command {
     local(@ENV{@{$envvars}}) = map { $self->texinputs_path } @{$envvars};
     $self->stats->{runs}{$progname}++;
     debug("running '$program $args'") if $DEBUG;
+    my $cwd = pushd($dir);
 
     # Format the command appropriately for our O/S
+    push @$args, '>' . $null;
 
     my $exit_status;
     if ($OSNAME eq 'MSWin32') {
         $args = join(' ', @$args);
-        $cmd  = "cmd /c \"cd $dir && $program $args\"";
+        $cmd  = "\"$program\" $args";
         $exit_status = system($cmd);
     }
     else {
         $args = "'$args'" if $args =~ / \\ /mx;
-        my $isc = IPC::ShellCmd->new([$program, @$args])
-            ->working_dir($dir)
-            ->run;
-        $isc->add_timers($self->timeout, 'TERM')
-            if $self->timeout;
-        $self->{stderr} .= $isc->stderr
-            if $self->{capture_stderr};
-        $exit_status = $isc->status;
+        $exit_status = system($program, @$args);
     }
 
     return $exit_status;
@@ -829,7 +824,7 @@ LaTeX::Driver - Latex driver
 
 =head1 VERSION
 
-This document describes version 0.20_03 of C<LaTeX::Driver>.
+This document describes version 0.200.4 of C<LaTeX::Driver>.
 
 =head1 SYNOPSIS
 

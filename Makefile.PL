@@ -4,9 +4,6 @@ use inc::Module::Install 0.91;
 use Module::Install::ReadmeFromPod;
 use Module::Install::AuthorRequires;
 use Module::Install::AuthorTests;
-use Module::Install::AssertOS;
-
-assertos qw/ Unix /;
 
 license 'perl';
 
@@ -23,8 +20,8 @@ requires 'File::Spec';
 requires 'Getopt::Long';
 requires 'IO::File';
 requires 'parent';
-requires 'IPC::ShellCmd' => 0.002;
 requires 'Readonly';
+requires 'File::pushd';
 
 test_requires 'Test::More' => '0.88';
 
@@ -39,6 +36,6 @@ install_script 'latex2ps';
 
 author_tests 'xt';
 
-resources repository => 'https://github.com/fordmason/LaTeX-Driver.git';
+resources repository => 'https://github.com/Template-Toolkit-Latex/LaTeX-Driver.git';
 
 WriteAll;

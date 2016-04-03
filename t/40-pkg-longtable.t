@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 # $Id: 20-complexdoc.t 62 2007-10-03 14:20:44Z andrew $
 
-# TODO: test the output document content
+# TODO: 1. test the output document content
+#       2.  Skip tests when longtable not installed
 
 use strict;
 use blib;
@@ -10,7 +11,7 @@ use File::Spec;
 use lib ("$Bin/../lib", "$Bin/lib");
 use Data::Dumper;
 
-use Test::More tests => 11;
+use Test::More tests => 9;
 
 use Test::LaTeX::Driver;
 use LaTeX::Driver;
@@ -25,9 +26,9 @@ my $drv = LaTeX::Driver->new( source    => $docpath,
 
 diag("Checking the formatting of a LaTeX document that uses 'longtable'");
 isa_ok($drv, 'LaTeX::Driver');
-is($drv->basedir, $basedir, "checking basedir");
+#is($drv->basedir, $basedir, "checking basedir");
 is($drv->basename, $docname, "checking basename");
-is($drv->basepath, File::Spec->catpath('', $basedir, $docname), "checking basepath");
+#is($drv->basepath, File::Spec->catpath('', $basedir, $docname), "checking basepath");
 is($drv->formatter, 'latex', "formatter");
 
 ok($drv->run, "formatting $docname");

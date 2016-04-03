@@ -2,6 +2,7 @@
 #defaults
 ^Makefile$
 ^blib/
+.hg/
 ^pm_to_blib
 ^blibdirs
 .git/
@@ -11,3 +12,5 @@ MYMETA.yml
 MYMETA.json
 MANIFEST.bak
 Makefile.old
+AssertOS
+CheckOS
