@@ -82,6 +82,8 @@ our %FORMATTERS  = (
     'pdf(dvi)'      => [ 'latex', 'dvipdfm' ],
     'pdf(ps)'       => [ 'latex', 'dvips', 'ps2pdf' ],
     'ps(pdf)'       => [ 'pdflatex', 'pdf2ps' ],
+    'ps(pdflatex)'       => [ 'pdflatex', 'pdf2ps' ],
+    'ps(xelatex)'       => [ 'xelatex', 'pdf2ps' ],
 );
 
 
@@ -132,7 +134,9 @@ sub new {
     # specified it is taken from that, or the default is take.
 
     my $output = $options->{output};
-    my $format = lc($options->{format});
+    my $format;
+    $format = lc($options->{format})
+        if $options->{format};
 
     if ($output and (!ref $output)) {
         my ($volume, $dir, $file) = File::Spec->splitpath($output);
