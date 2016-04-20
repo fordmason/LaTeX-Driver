@@ -36,7 +36,6 @@ use warnings;
 use Config;
 use FindBin qw($Bin);
 use Getopt::Long;
-use IPC::ShellCmd;
 
 use Test::More;
 require Exporter;
@@ -67,8 +66,9 @@ our @DEBUGOPTS = ( DEBUG => $debug, DEBUGPREFIX => $debug_prefix);
 our ($testno, $basedir, $docname, $docpath) = get_test_params();
 
 sub get_test_params {
+    my $slash = $WIN32 ? "[\\\\/]" : "/"; # both can happen on win32
     my $basename = $0;
-    $basename =~ s{ ^ .* / }{}x;
+    $basename =~ s{ ^ .* $slash }{}x;
     $basename =~ s/\.t$//;
     my ($testno) = $basename =~ m/^(\d+)/;
     die "cannot determine test no from script name $0" unless $testno;
@@ -183,7 +183,7 @@ sub test_dvifile {
     {
         skip "cannot find dvitype", 1 unless $dvitype;
         
-        my $dvioutput =  `$dvitype $file`; 
+        my $dvioutput =  `"$dvitype" "$file"`;
         my $total = @patterns;
         my $found = 0;
         my $pattern = shift @patterns;

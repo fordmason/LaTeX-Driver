@@ -18,7 +18,15 @@
 # Miscellaneous
 #------------------------------------------------------------------------
 
-* add handling of luatex
+* Win32 support
+    * Path tests need to be reworked
+
+    * get the filter working on Win32 
+      (how does one set environment variables with command.exe?)
+
+
+* Add plugin model
+    * add handling of luatex
 
 * improve Kwalitee and general adherance to Perl best practice [MOSTLY DONE]
 
@@ -39,10 +47,6 @@
 * look at how path variables could be specified to the filter
   (TEXINPUTS, TEXINPUTS_latex, TEXINPUTS_pdflatex, BIBINPUTS, etc),
   and how these should interact with the system paths.
-
-* get the filter working on Win32
-
-  how does one set environment variables with command.exe?
 
 * write unit tests for error conditions (invalid .bib file, etc)
 
